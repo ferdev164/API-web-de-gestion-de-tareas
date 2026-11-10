@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Tareas</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Tareas</h1>
+    <div id="user-info" class="hidden">
+      <span id="user-label"></span>
+      <button id="btn-logout" class="secondary">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div id="toast" class="hidden"></div>
+
+  <!-- ===== Autenticación ===== -->
+  <main id="auth-view">
+    <section class="card auth-card">
+      <div class="tabs">
+        <button class="tab active" data-tab="login">Iniciar sesión</button>
+        <button class="tab" data-tab="register">Registrarse</button>
+      </div>
+
+      <form id="login-form">
+        <label>Correo <input type="email" name="email" required autocomplete="username"></label>
+        <label>Contraseña <input type="password" name="password" required autocomplete="current-password"></label>
+        <button type="submit">Entrar</button>
+      </form>
+
+      <form id="register-form" class="hidden">
+        <label>Nombre <input type="text" name="nombre" required minlength="2" maxlength="80"></label>
+        <label>Correo <input type="email" name="email" required autocomplete="username"></label>
+        <label>Contraseña <input type="password" name="password" required minlength="8" maxlength="128" autocomplete="new-password"></label>
+        <button type="submit">Crear cuenta</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- ===== Aplicación ===== -->
+  <main id="app-view" class="hidden">
+    <section class="card">
+      <h2>Nueva tarea</h2>
+      <form id="task-form" class="task-form">
+        <input type="text" name="title" placeholder="Título (3–120 caracteres)" required minlength="3" maxlength="120">
+        <textarea name="description" placeholder="Descripción (opcional)" maxlength="1000"></textarea>
+        <select name="status">
+          <option value="pendiente">Pendiente</option>
+          <option value="en_progreso">En progreso</option>
+          <option value="completada">Completada</option>
+        </select>
+        <button type="submit">Agregar</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="row-between">
+        <h2 id="tasks-title">Mis tareas</h2>
+        <select id="filter-status">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="en_progreso">En progreso</option>
+          <option value="completada">Completada</option>
+        </select>
+      </div>
+      <ul id="task-list"></ul>
+      <p id="empty-msg" class="muted hidden">No hay tareas.</p>
+    </section>
+
+    <section id="admin-panel" class="card hidden">
+      <h2>Usuarios (administrador)</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th></tr></thead>
+        <tbody id="user-table"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- ===== Diálogo de edición ===== -->
+  <dialog id="edit-dialog">
+    <form id="edit-form" method="dialog">
+      <h2>Editar tarea</h2>
+      <label>Título <input type="text" name="title" required minlength="3" maxlength="120"></label>
+      <label>Descripción <textarea name="description" maxlength="1000"></textarea></label>
+      <label>Estado
+        <select name="status">
+          <option value="pendiente">Pendiente</option>
+          <option value="en_progreso">En progreso</option>
+          <option value="completada">Completada</option>
+        </select>
+      </label>
+      <div class="row-end">
+        <button type="button" id="edit-cancel" class="secondary">Cancelar</button>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

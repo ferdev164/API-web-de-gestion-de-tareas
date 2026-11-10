@@ -47,6 +47,21 @@ def init_db() -> None:
         conn.close()
 
 
+def ensure_admin(email: str, password: str, hash_fn) -> None:
+    """Crea el admin inicial si no existe (para despliegues sin consola)."""
+    conn = get_connection()
+    try:
+        exists = conn.execute("SELECT 1 FROM users WHERE email = ?", (email.lower(),)).fetchone()
+        if not exists:
+            conn.execute(
+                "INSERT INTO users (nombre, email, password_hash, role) VALUES (?, ?, ?, 'admin')",
+                ("Administrador", email.lower(), hash_fn(password)),
+            )
+            conn.commit()
+    finally:
+        conn.close()
+
+
 def get_db():
     """Dependencia de FastAPI: una conexión por solicitud."""
     conn = get_connection()

@@ -1,7 +1,8 @@
-# API de Gestión de Tareas – Proyecto base (Guía 04, ISW)
+# Gestión de Tareas – Proyecto base (Guía 04, ISW)
 
-API web en **FastAPI + SQLite** con registro e inicio de sesión, CRUD de tareas y roles
-(estudiante, docente, administrador).
+Aplicación web con **backend FastAPI + SQLite** y **frontend HTML/CSS/JS** servido por la
+misma API: registro e inicio de sesión, CRUD de tareas y roles (estudiante, docente,
+administrador). Un solo servicio, una sola URL.
 
 ## Instalación (Windows / PowerShell)
 
@@ -17,6 +18,7 @@ pip install -r requirements.txt
 python -m uvicorn main:app --reload --port 8000
 ```
 
+- Aplicación (frontend): http://127.0.0.1:8000/
 - Documentación interactiva: http://127.0.0.1:8000/docs
 - Para probar endpoints protegidos en `/docs`: botón **Authorize** → en *username* va el correo.
 
@@ -33,6 +35,40 @@ y las sesiones se pierden al reiniciar):
 $env:SECRET_KEY = "una-clave-larga-y-aleatoria-de-32+caracteres"
 ```
 
+## Desplegar
+
+### Opción A: Render (gratis, más simple)
+
+1. Sube el proyecto a GitHub.
+2. En https://render.com → **New → Blueprint** → elige el repositorio (usa `render.yaml`).
+3. Cuando lo pida, completa `ADMIN_EMAIL` y `ADMIN_PASSWORD` (se crea ese admin al iniciar).
+   `SECRET_KEY` se genera solo.
+4. Al terminar, abre la URL `https://<tu-servicio>.onrender.com`.
+
+> En el plan gratuito el disco no es persistente: la base SQLite se reinicia en cada
+> redespliegue o reinicio. Para la práctica sirve; para datos permanentes agrega un
+> disco persistente (plan pago) con `DB_PATH=/var/data/tareas.db`.
+
+### Opción B: Docker (Railway, Fly.io, VPS, etc.)
+
+```bash
+docker build -t gestion-tareas .
+docker run -p 8000:8000 -v tareas_data:/data \
+  -e SECRET_KEY="clave-larga-aleatoria" \
+  -e ADMIN_EMAIL="admin@tudominio.com" -e ADMIN_PASSWORD="ClaveSegura123" \
+  gestion-tareas
+```
+
+### Variables de entorno
+
+| Variable | Uso | Por defecto |
+|---|---|---|
+| `SECRET_KEY` | Firma de tokens JWT (obligatoria en producción) | aleatoria al iniciar |
+| `DB_PATH` | Ruta del archivo SQLite | `tareas.db` |
+| `ACCESS_TOKEN_MINUTES` | Duración de la sesión | `30` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Crea el admin inicial si no existe | — |
+| `PORT` | Puerto (lo define la plataforma) | `8000` |
+
 ## Pruebas
 
 ```powershell
@@ -42,7 +78,8 @@ python -m pytest -v
 ## Estructura
 
 ```
-main.py            App FastAPI y registro de routers
+main.py            App FastAPI, routers y frontend estático
+static/            Frontend: index.html, app.js, styles.css
 database.py        Conexión SQLite y esquema (users, tasks)
 security.py        Hash Argon2id, JWT con expiración, control de roles
 schemas.py         Validación de entrada/salida (Pydantic)
@@ -51,6 +88,8 @@ routers/tasks.py   CRUD /tasks con control por propiedad y rol
 routers/users.py   /users (solo admin): listar y cambiar rol
 create_admin.py    Script para crear/promover un admin
 tests/             Pruebas automatizadas (pytest)
+Dockerfile         Imagen para desplegar con Docker
+render.yaml        Despliegue en Render
 ```
 
 ## Endpoints
@@ -83,6 +122,7 @@ tests/             Pruebas automatizadas (pytest)
 - Verificación de propiedad en servidor → HTTP 403 ante acceso a tareas ajenas (IDOR).
 - Consultas SQL parametrizadas en todos los endpoints.
 - Validación: título 3–120, descripción ≤ 1000, estado en lista permitida.
+- Frontend: el contenido del usuario se pinta con `textContent` (sin `innerHTML`) → sin XSS.
 
 ## Pendiente para las siguientes actividades de la guía
 
